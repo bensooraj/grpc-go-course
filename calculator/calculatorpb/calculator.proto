@@ -21,9 +21,19 @@ message PrimeNumberDecompositionResponse {
     int64 prime_factor = 1;
 }
 
+message ComputeAverageRequest {
+    int64 number = 1;
+}
+
+message ComputeAverageResponse {
+    float average_result = 1;
+}
+
 service CalculatorService {
     rpc Sum (SumRequest) returns (SumResponse) {};
     
     rpc PrimeNumberDecomposition (PrimeNumberDecompositionRequest) 
     returns (stream PrimeNumberDecompositionResponse) {};
+
+    rpc ComputeAverage (stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
 }
