@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net"
 
 	"github.com/bensooraj/grpc-go-course/calculator/calculatorpb"
@@ -13,6 +14,30 @@ import (
 )
 
 type server struct {
+}
+
+func (*server) FindMaximum(stream calculatorpb.CalculatorService_FindMaximumServer) error {
+
+	max := float64(-99999999)
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Printf("Reached end of stream EOF: %v ", err)
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error receiving from the client stream: %v ", err)
+		}
+
+		max = math.Max(max, float64(req.GetNumber()))
+
+		stream.Send(&calculatorpb.FindMaximumResponse{
+			Result: int64(max),
+		})
+	}
+
+	return nil
 }
 
 func (*server) ComputeAverage(clientStream calculatorpb.CalculatorService_ComputeAverageServer) error {

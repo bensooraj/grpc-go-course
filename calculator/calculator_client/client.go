@@ -26,8 +26,69 @@ func main() {
 
 	// doUnary(c)
 	// doServerStreaming(c)
-	doClientStreaming(c)
+	// doClientStreaming(c)
+	doBiDiStreaming(c)
 
+}
+
+func doBiDiStreaming(c calculatorpb.CalculatorServiceClient) {
+	fmt.Println("BiDi Stream RPC initiated")
+	requests := []*calculatorpb.FindMaximumRequest{
+		&calculatorpb.FindMaximumRequest{
+			Number: 123,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 4324,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 8750,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 1232,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 4565,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 25233,
+		},
+	}
+
+	stream, err := c.FindMaximum(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling FindMaximum RPC: %v \n", err)
+	}
+
+	waitChannel := make(chan struct{})
+	// Send
+	go func() {
+		for _, req := range requests {
+			stream.Send(req)
+			fmt.Println("[SENDING] Numer: ", req.GetNumber())
+			time.Sleep(1000 * time.Millisecond)
+		}
+		stream.CloseSend()
+	}()
+
+	// Receive
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				log.Fatalf("Done receiving maximum numbers: %v \n", err)
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while receiving maximum numbers: %v \n", err)
+				break
+			}
+
+			fmt.Println("[RECEIVING] Maximum Number: ", res.GetResult())
+		}
+		close(waitChannel)
+	}()
+
+	<-waitChannel
 }
 
 func doClientStreaming(c calculatorpb.CalculatorServiceClient) {
