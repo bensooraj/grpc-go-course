@@ -7,6 +7,10 @@ import (
 	"log"
 	"time"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc/status"
+
 	"github.com/bensooraj/grpc-go-course/calculator/calculatorpb"
 
 	"google.golang.org/grpc"
@@ -27,8 +31,31 @@ func main() {
 	// doUnary(c)
 	// doServerStreaming(c)
 	// doClientStreaming(c)
-	doBiDiStreaming(c)
+	// doBiDiStreaming(c)
+	doErrorUnary(c)
+}
 
+func doErrorUnary(c calculatorpb.CalculatorServiceClient) {
+	req := &calculatorpb.SquareRootRequest{
+		Number: -123,
+	}
+
+	res, err := c.SquareRoot(context.Background(), req)
+	if err != nil {
+		respError, ok := status.FromError(err)
+		if ok {
+			// Actual user defined gRPC error
+			fmt.Println(respError.Code(), respError.Message())
+			if respError.Code() == codes.InvalidArgument {
+				fmt.Println("We sent a negative number")
+			}
+		} else {
+			log.Fatalf("Big error calling sqrt: %v\n", respError)
+		}
+
+	}
+
+	log.Printf("Result: %v\n", res.GetNumberRoot())
 }
 
 func doBiDiStreaming(c calculatorpb.CalculatorServiceClient) {
