@@ -7,6 +7,10 @@ import (
 	"log"
 	"time"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc/status"
+
 	"github.com/bensooraj/grpc-go-course/greet/greetpb"
 
 	"google.golang.org/grpc"
@@ -30,7 +34,10 @@ func main() {
 
 	// doClientStreaming(c)
 
-	doBiDiStreaming(c)
+	// doBiDiStreaming(c)
+
+	doUnaryWithDeadline(c, 5*time.Second)
+	doUnaryWithDeadline(c, 1*time.Second)
 
 }
 
@@ -204,6 +211,39 @@ func doUnary(c greetpb.GreetServiceClient) {
 	res, err := c.Greet(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling Greet rpc: %v \n", err)
+	}
+
+	log.Printf("Response: %v\n", res)
+}
+
+func doUnaryWithDeadline(c greetpb.GreetServiceClient, timeout time.Duration) {
+
+	fmt.Println("Unary RPC initiated")
+
+	req := &greetpb.GreetWithDeadlineRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "Ben",
+			LastName:  "Sooraj",
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	res, err := c.GreetWithDeadline(ctx, req)
+	if err != nil {
+
+		statusError, ok := status.FromError(err)
+		if ok {
+			if statusError.Code() == codes.DeadlineExceeded {
+				fmt.Println("Timeout was hit! Deadline exceeded!", statusError.Message())
+			} else {
+				fmt.Println("Unexpected Error!", statusError)
+			}
+		} else {
+			log.Fatalf("Error while calling GreetWithDeadline RPC: %v \n", err)
+		}
+
 	}
 
 	log.Printf("Response: %v\n", res)
