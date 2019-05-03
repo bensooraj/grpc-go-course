@@ -70,7 +70,7 @@ func (*server) PrimeNumberDecomposition(req *calculatorpb.PrimeNumberDecompositi
 
 		} else {
 			divisor = divisor + 1
-			fmt.Println("Divisor incremented to %v: ", divisor)
+			fmt.Println("Divisor incremented to : ", divisor)
 		}
 	}
 
