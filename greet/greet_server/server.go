@@ -32,7 +32,35 @@ func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.G
 	return res, nil
 }
 
-// GreetService_GreetManyTimesServer
+func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) error {
+
+	fmt.Printf("GreetEveryone func invoked\n")
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Println("Reached EOF")
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v ", err)
+			return err
+		}
+		firstName := req.GetGreeting().GetFirstName()
+		result := "Hello, " + firstName + ". "
+
+		sendErr := stream.Send(&greetpb.GreetEveryoneResponse{
+			Result: result,
+		})
+		if sendErr != nil {
+			log.Fatalf("Error while sending data to client: %v ", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb.GreetService_GreetManyTimesServer) error {
 
 	firstName := req.GetGreeting().GetFirstName()
