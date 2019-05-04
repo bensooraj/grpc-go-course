@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -20,6 +21,12 @@ import (
 
 var collection *mongo.Collection
 
+// MongoDBCredentials ...
+type MongoDBCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type server struct {
 }
 
@@ -35,8 +42,21 @@ func main() {
 	// In case of crash, get the filename and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	fmt.Println("Connecting to MongoDB")
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.2:27017"))
+	// Load MongoDB Credentials
+	mongodbCredsFile, err := os.Open("mongodb-config/credentials.json")
+	if err != nil {
+		log.Fatalf("Unable to fetch mongoDB credentials")
+	}
+	var mongodbCredentials MongoDBCredentials
+	decoder := json.NewDecoder(mongodbCredsFile)
+	err = decoder.Decode(&mongodbCredentials)
+	if err != nil {
+		log.Fatalf("Unable to parse mongoDB credentials")
+	}
+
+	mongoDbConnectionURL := fmt.Sprintf("mongodb://%s:%s@ds149596.mlab.com:49596/mydb?authMechanism=SCRAM-SHA-1", mongodbCredentials.Username, mongodbCredentials.Password)
+	fmt.Println("Connecting to MongoDB: ", mongoDbConnectionURL)
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoDbConnectionURL))
 	if err != nil {
 		log.Fatal(err)
 	}
