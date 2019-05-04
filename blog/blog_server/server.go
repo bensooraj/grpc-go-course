@@ -16,6 +16,10 @@ type server struct {
 }
 
 func main() {
+
+	// In case of crash, get the filename and line number
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	fmt.Println("Blog Server Started")
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
