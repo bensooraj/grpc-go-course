@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/bensooraj/grpc-go-course/blog/blogpb"
@@ -64,12 +65,31 @@ func main() {
 	// fmt.Println("Blog Updated and Returned: ", updatedBlog)
 
 	// Delete Blog
+	// fmt.Println("Updating a blog")
+	// deletedBlogID, err := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{
+	// 	BlogId: "5ccec7abd9cf356dc5dca4e0",
+	// })
+	// if err != nil {
+	// 	log.Fatalf("Couldn't find blog with the given blog ID")
+	// }
+	// fmt.Println("Blog Deleted: ", deletedBlogID)
+
+	// List Blog
 	fmt.Println("Updating a blog")
-	deletedBlogID, err := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{
-		BlogId: "5ccec7abd9cf356dc5dca4e0",
-	})
+	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
 	if err != nil {
-		log.Fatalf("Couldn't find blog with the given blog ID")
+		log.Fatalf("Error while calling ListBlog streaming RPC: %v", err)
 	}
-	fmt.Println("Blog Deleted: ", deletedBlogID)
+
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Something went wrong while iterating through the stream: %v", err)
+		}
+
+		fmt.Println(res.GetBlog())
+	}
 }
