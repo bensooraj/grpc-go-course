@@ -22,29 +22,44 @@ func main() {
 	c := blogpb.NewBlogServiceClient(cc)
 
 	// Create Blog
-	fmt.Println("Creating a blog")
-	blog := &blogpb.Blog{
-		AuthorId: "Sooraj",
-		Title:    "My Third Blog",
-		Content:  "Third Blog Contents",
-	}
-	createdBlog, err := c.CreateBlog(context.Background(), &blogpb.CreateBlogRequest{
-		Blog: blog,
-	})
-	if err != nil {
-		log.Fatalf("Unexpected Error: %v", err)
-	}
-	fmt.Printf("Blog created: %v\n\n", createdBlog)
-	blogID := createdBlog.GetBlog().GetId()
+	// fmt.Println("Creating a blog")
+	// blog := &blogpb.Blog{
+	// 	AuthorId: "Sooraj",
+	// 	Title:    "My Third Blog",
+	// 	Content:  "Third Blog Contents",
+	// }
+	// createdBlog, err := c.CreateBlog(context.Background(), &blogpb.CreateBlogRequest{
+	// 	Blog: blog,
+	// })
+	// if err != nil {
+	// 	log.Fatalf("Unexpected Error: %v", err)
+	// }
+	// fmt.Printf("Blog created: %v\n\n", createdBlog)
+	// blogID := createdBlog.GetBlog().GetId()
 
 	// Read Blog
 	// fmt.Println("Reading a blog")
 	//
-	blogData, err := c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{
-		BlogId: blogID,
+	// blogData, err := c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{
+	// 	BlogId: blogID,
+	// })
+	// if err != nil {
+	// 	log.Fatalf("Couldn't find blog with the given blog ID")
+	// }
+	// fmt.Println("Blog Returned: ", blogData)
+
+	// Update Blog
+	fmt.Println("Updating a blog")
+	updatedBlog, err := c.UpdateBlog(context.Background(), &blogpb.UpdateBlogRequest{
+		Blog: &blogpb.Blog{
+			Id:       "5ccdf25ab7cd8d281541b83f",
+			AuthorId: "Ben",
+			Title:    "My First Blog",
+			Content:  "First Blog Contents - 1",
+		},
 	})
 	if err != nil {
 		log.Fatalf("Couldn't find blog with the given blog ID")
 	}
-	fmt.Println("Blog Returned: ", blogData)
+	fmt.Println("Blog Updated and Returned: ", updatedBlog)
 }
