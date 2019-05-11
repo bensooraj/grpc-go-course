@@ -21,34 +21,44 @@ async function main() {
     );
 
     // Unary
-    try {
-        console.log("Unary: Sum")
-        await sum(client);
-        console.log("########################################");
-        console.log();
-    } catch (error) {
-        console.log("Sum error: ", error);
-    }
+    // try {
+    //     console.log("Unary: Sum")
+    //     await sum(client);
+    //     console.log("########################################");
+    //     console.log();
+    // } catch (error) {
+    //     console.log("Sum error: ", error);
+    // }
 
     // Server Streaming
+    // try {
+    //     console.log("Server Streaming: PrimeNumberDecomposition")
+    //     await primeNumberDecomposition(client);
+    //     console.log("########################################");
+    //     console.log();
+    // } catch (error) {
+    //     console.log("primeNumberDecomposition error: ", error);
+    // }
+
+    // Client Streaming
     try {
-        console.log("Server Streaming: PrimeNumberDecomposition")
-        await primeNumberDecomposition(client);
+        console.log("Client Streaming: ComputeAverage")
+        await computeAverage(client);
         console.log("########################################");
         console.log();
     } catch (error) {
-        console.log("primeNumberDecomposition error: ", error);
+        console.log("computeAverage error: ", error);
     }
 
     // BiDi Streaming
-    try {
-        console.log("BiDi Streaming: FindMaximum")
-        await findMaximum(client);
-        console.log("########################################");
-        console.log();
-    } catch (error) {
-        
-    }
+    // try {
+    //     console.log("BiDi Streaming: FindMaximum")
+    //     await findMaximum(client);
+    //     console.log("########################################");
+    //     console.log();
+    // } catch (error) {
+    //     console.log("findMaximum error: ", error);
+    // }
 }
 // 
 main();
@@ -96,11 +106,39 @@ function findMaximum(client) {
         });
         // 
         stream.on('end', resolve);
-        
+
         // 
         const numberArray = [1, 4, 5, 3, 35, 5, 1, 25, 6, 45, 23, 3, 2, 5, 56];
         for (const number of numberArray) {
             await sleep(1000);
+            stream.write({
+                number
+            });
+            console.log("[SENDING] Number: ", number);
+        }
+        stream.end()
+    });
+}
+
+function computeAverage(client) {
+    return new Promise(async (resolve, reject) => {
+        // Get the stream object
+        let stream = client.ComputeAverage({
+            number: 1,
+        }, (err, response) => {
+            if (err) {
+                console.log("computeAverage | client.ComputeAverage | Error: ", err);
+                reject(err);
+                return;
+            }
+            console.log("computeAverage | client.ComputeAverage | Response: ", response);
+            resolve();
+            return;
+        });
+
+        const numberArray = [1, 4, 5, 3, 35, 5, 1, 25, 6, 45, 23, 3, 2, 5, 56];
+        for (const number of numberArray) {
+            await sleep(100);
             stream.write({
                 number
             });
