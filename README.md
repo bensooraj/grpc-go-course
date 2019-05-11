@@ -2,6 +2,8 @@ This is me workign through the exercises of the O'Reilly course [gRPC [Golang] M
 
 The MongoDB CRUD implementions are different than in the course. I guess the [mongo-go-driver](https://github.com/mongodb/mongo-go-driver) package has been updated since this course was created.
 
+I have also written a [Node.js client](calculator/calculator_client_node) for the [calculator](calculator/) module.
+
 Resources:
 1. [mongo-go-driver](https://github.com/mongodb/mongo-go-driver) GitHub Repository
 2. [mongo-go-driver GoDoc](https://godoc.org/go.mongodb.org/mongo-driver/mongo)
