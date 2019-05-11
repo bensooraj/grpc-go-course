@@ -39,6 +39,16 @@ async function main() {
     } catch (error) {
         console.log("primeNumberDecomposition error: ", error);
     }
+
+    // BiDi Streaming
+    try {
+        console.log("BiDi Streaming: FindMaximum")
+        await findMaximum(client);
+        console.log("########################################");
+        console.log();
+    } catch (error) {
+        
+    }
 }
 // 
 main();
@@ -73,4 +83,35 @@ function primeNumberDecomposition(client) {
         // 
         stream.on('end', resolve);
     });
+}
+
+function findMaximum(client) {
+    return new Promise(async (resolve, reject) => {
+        // Get the stream object
+        const stream = client.FindMaximum({
+            number: 444
+        });
+        stream.on('data', function (maximum) {
+            console.warn("[RECEIVING] Current maximum: ", maximum);
+        });
+        // 
+        stream.on('end', resolve);
+        
+        // 
+        const numberArray = [1, 4, 5, 3, 35, 5, 1, 25, 6, 45, 23, 3, 2, 5, 56];
+        for (const number of numberArray) {
+            await sleep(1000);
+            stream.write({
+                number
+            });
+            console.log("[SENDING] Number: ", number);
+        }
+        stream.end()
+    });
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    })
 }
